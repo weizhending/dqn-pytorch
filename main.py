@@ -30,7 +30,7 @@ def select_action(state):
     steps_done += 1
     if sample > eps_threshold:
         with torch.no_grad():
-            return policy_net(state.to('cpu')).max(1)[1].view(1,1)
+            return policy_net(state.to('device')).max(1)[1].view(1,1)
     else:
         return torch.tensor([[random.randrange(4)]], device=device, dtype=torch.long)
 
@@ -49,18 +49,18 @@ def optimize_model():
     """
     batch = Transition(*zip(*transitions))
     
-    actions = tuple((map(lambda a: torch.tensor([[a]], device='cpu'), batch.action))) 
-    rewards = tuple((map(lambda r: torch.tensor([r], device='cpu'), batch.reward))) 
+    actions = tuple((map(lambda a: torch.tensor([[a]], device='device'), batch.action))) 
+    rewards = tuple((map(lambda r: torch.tensor([r], device='device'), batch.reward))) 
 
     non_final_mask = torch.tensor(
         tuple(map(lambda s: s is not None, batch.next_state)),
         device=device, dtype=torch.bool)
     
     non_final_next_states = torch.cat([s for s in batch.next_state
-                                       if s is not None]).to('cpu')
+                                       if s is not None]).to('device')
     
 
-    state_batch = torch.cat(batch.state).to('cpu')
+    state_batch = torch.cat(batch.state).to('device')
     action_batch = torch.cat(actions)
     reward_batch = torch.cat(rewards)
     
@@ -106,7 +106,7 @@ def train(env, n_episodes, render=False):
 
             reward = torch.tensor([reward], device=device)
 
-            memory.push(state, action.to('cpu'), next_state, reward.to('cpu'))
+            memory.push(state, action.to('device'), next_state, reward.to('device'))
             state = next_state
 
             if steps_done > INITIAL_MEMORY:
@@ -129,7 +129,7 @@ def test(env, n_episodes, policy, render=True):
         state = get_state(obs)
         total_reward = 0.0
         for t in count():
-            action = policy(state.to('cpu')).max(1)[1].view(1,1)
+            action = policy(state.to('device')).max(1)[1].view(1,1)
 
             if render:
                 env.render()
@@ -187,7 +187,7 @@ if __name__ == '__main__':
     memory = ReplayMemory(MEMORY_SIZE)
     
     # train model
-    train(env, 100)
+    train(env, 400)
     torch.save(policy_net, "dqn_pong_model")
     #torch.save(policy_net.state_dict(), "./policy_net.pt")
     policy_net = torch.load("dqn_pong_model")
