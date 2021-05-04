@@ -106,7 +106,7 @@ def train(env, n_episodes, render=False):
 
             reward = torch.tensor([reward], device=device)
 
-            memory.push(state, action.to(device), next_state, reward.to(device))
+            memory.push(state, action.to('cpu'), next_state, reward.to('cpu'))
             state = next_state
 
             if steps_done > INITIAL_MEMORY:
