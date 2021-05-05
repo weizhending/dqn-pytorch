@@ -3,12 +3,18 @@ This is a simple implementation of the Deep Q-learning algorithm on the Atari Po
 
 ![](/assets/pong.gif)
 
-Depedencies:
-gym
-gym[atari]
-opencv-python
-torch
-torchvision
+System dependencies for gym environment:
+* cmake 
+* libz-dev
+* (build-essential)
+* (manpages-dev)
+
+Python depedencies:
+* gym
+* gym[atari]
+* opencv-python
+* torch
+* torchvision
 
 ## References
 1. *Playing Atari with Deep Reinforcement Learning*, Mnih et al., 2013
