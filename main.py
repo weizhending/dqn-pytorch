@@ -1,9 +1,8 @@
-import copy
 from collections import namedtuple
 from itertools import count
 import math
 import random
-import numpy as np 
+import numpy as np
 import time
 
 import gym
@@ -18,7 +17,7 @@ import torch.optim as optim
 import torch.nn.functional as F
 import torchvision.transforms as T
 
-Transition = namedtuple('Transion', 
+Transition = namedtuple('Transion',
                         ('state', 'action', 'next_state', 'reward'))
 
 
@@ -34,7 +33,7 @@ def select_action(state):
     else:
         return torch.tensor([[random.randrange(4)]], device=device, dtype=torch.long)
 
-    
+
 def optimize_model():
     if len(memory) < BATCH_SIZE:
         return
@@ -45,33 +44,33 @@ def optimize_model():
     batch.state - tuple of all the states (each state is a tensor)
     batch.next_state - tuple of all the next states (each state is a tensor)
     batch.reward - tuple of all the rewards (each reward is a float)
-    batch.action - tuple of all the actions (each action is an int)    
+    batch.action - tuple of all the actions (each action is an int)
     """
     batch = Transition(*zip(*transitions))
-    
-    actions = tuple((map(lambda a: torch.tensor([[a]], device=device), batch.action))) 
-    rewards = tuple((map(lambda r: torch.tensor([r], device=device), batch.reward))) 
+
+    actions = tuple((map(lambda a: torch.tensor([[a]], device=device), batch.action)))
+    rewards = tuple((map(lambda r: torch.tensor([r], device=device), batch.reward)))
 
     non_final_mask = torch.tensor(
         tuple(map(lambda s: s is not None, batch.next_state)),
         device=device, dtype=torch.bool)
-    
+
     non_final_next_states = torch.cat([s for s in batch.next_state
                                        if s is not None]).to(device)
-    
+
 
     state_batch = torch.cat(batch.state).to(device)
     action_batch = torch.cat(actions)
     reward_batch = torch.cat(rewards)
-    
+
     state_action_values = policy_net(state_batch).gather(1, action_batch)
-    
+
     next_state_values = torch.zeros(BATCH_SIZE, device=device)
     next_state_values[non_final_mask] = target_net(non_final_next_states).max(1)[0].detach()
     expected_state_action_values = (next_state_values * GAMMA) + reward_batch
-    
+
     loss = F.smooth_l1_loss(state_action_values, expected_state_action_values.unsqueeze(1))
-    
+
     optimizer.zero_grad()
     loss.backward()
     for param in policy_net.parameters():
@@ -185,7 +184,7 @@ if __name__ == '__main__':
 
     # initialize replay memory
     memory = ReplayMemory(MEMORY_SIZE)
-    
+
     # train model
     train(env, 400)
     torch.save(policy_net, "dqn_pong_model")

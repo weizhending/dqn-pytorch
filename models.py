@@ -5,7 +5,7 @@ import torch.nn.functional as F
 import torchvision.transforms as T
 
 class DQNbn(nn.Module):
-    def __init__(self, in_channels=4, n_actions=14):
+    def __init__(self, in_channels=4, n_actions=6):
         """
         Initialize Deep Q Network
 
@@ -22,7 +22,7 @@ class DQNbn(nn.Module):
         self.bn3 = nn.BatchNorm2d(64)
         self.fc4 = nn.Linear(7 * 7 * 64, 512)
         self.head = nn.Linear(512, n_actions)
-        
+
     def forward(self, x):
         x = x.float() / 255
         x = F.relu(self.bn1(self.conv1(x)))
@@ -33,7 +33,7 @@ class DQNbn(nn.Module):
 
 
 class DQN(nn.Module):
-    def __init__(self, in_channels=4, n_actions=14):
+    def __init__(self, in_channels=4, n_actions=6):
         """
         Initialize Deep Q Network
 
@@ -50,7 +50,7 @@ class DQN(nn.Module):
         # self.bn3 = nn.BatchNorm2d(64)
         self.fc4 = nn.Linear(7 * 7 * 64, 512)
         self.head = nn.Linear(512, n_actions)
-        
+
     def forward(self, x):
         x = x.float() / 255
         x = F.relu(self.conv1(x))
